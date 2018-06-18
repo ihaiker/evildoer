@@ -1,0 +1,4 @@
+group 'la.renzhen.basis'
+version '1.0.0-SNAPSHOT'
+
+apply from: "module.gradle"
