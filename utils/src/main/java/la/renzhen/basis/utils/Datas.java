@@ -29,18 +29,36 @@ public class Datas {
     }
 
     public static Date weekDay(int day) {
+        return weekDay(now(), day);
+    }
+
+    public static Date weekDay(Date date, int day) {
         Calendar cal = Calendar.getInstance(Locale.CHINA);
+        cal.setTime(date);
         cal.setFirstDayOfWeek(Calendar.MONDAY);
         cal.set(Calendar.DAY_OF_WEEK, day);
         return cal.getTime();
     }
-
 
     /**
      * 获取星期一
      */
     public static Date monday() {
         return weekDay(Calendar.MONDAY);
+    }
+
+    /**
+     * 获取星期一
+     */
+    public static Date monday(Date date) {
+        return weekDay(date, Calendar.MONDAY);
+    }
+
+    /**
+     * 获取星期天
+     */
+    public static Date sunday(Date date) {
+        return weekDay(date, Calendar.SUNDAY);
     }
 
     /**
@@ -59,26 +77,34 @@ public class Datas {
         return format(date, DEFAULT_FORMATE);
     }
 
-    public static Date monthFirstDay(){
+    public static Date monthFirstDay() {
         return monthFirstDay(now());
     }
 
-    public static Date monthFirstDay(Date date){
+    public static Date monthFirstDay(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        calendar.set(Calendar.DAY_OF_MONTH,1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
 
-    public static Date monthLastDay(){
+    public static Date monthLastDay() {
         return monthLastDay(now());
     }
 
-    public static Date monthLastDay(Date date){
+    public static Date monthLastDay(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        calendar.add(Calendar.MONTH,1);
-        calendar.set(Calendar.DAY_OF_MONTH,0);
+        calendar.add(Calendar.MONTH, 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
 
@@ -91,7 +117,7 @@ public class Datas {
     public static String petty(Date date) {
         Calendar calendar = Calendar.getInstance();
         long delta = calendar.getTimeInMillis() - date.getTime();
-        if(delta < 0){
+        if (delta < 0) {
             return format(date);
         }
 
@@ -102,15 +128,23 @@ public class Datas {
         } else if (delta < TimeUnit.DAYS.toMinutes(1)) {
             return TimeUnit.MILLISECONDS.toHours(delta) + "小时前";
         } else {
-            switch ((int) TimeUnit.MILLISECONDS.toDays(delta)) {
+            int day = (int) TimeUnit.MILLISECONDS.toDays(delta);
+            switch (day) {
                 case 1:
                     return "昨天 " + format(date, FORMATE_TIME);
                 case 2:
                     return "前天 " + format(date, FORMATE_TIME);
                 default:
-                    return format(date, DEFAULT_FORMATE);
+                    if (day < 7) {
+                        if (isSameWeek(now(), date)) {
+                            return "本" + weekName(date) + format(date, " HH:mm:ss");
+                        } else {
+                            return "上" + weekName(date) + format(date, " HH:mm:ss");
+                        }
+                    }
             }
         }
+        return format(date, DEFAULT_FORMATE);
     }
 
     public static Date round(Date date, int field) {
@@ -179,24 +213,79 @@ public class Datas {
         return new DateIterator(start.getTime(), end.getTime(), unit);
     }
 
-    public static Tuple.Pair<Date,Date> weekRange(){
+    public static Tuple.Pair<Date, Date> weekRange() {
+        return weekRange(now());
+    }
 
+    public static List<Date> weekDays() {
+        return weekDays(now());
+    }
+
+    public static Tuple.Pair<Date, Date> weekRange(Date date) {
+        return Tuple.T.pair(round(monday(date)), round(sunday(date)));
+    }
+
+    public static List<Date> weekDays(Date date) {
+        List<Date> days = new ArrayList<>();
+        Tuple.Pair<Date, Date> range = weekRange(date);
+        days.add(range.getA());
+        days.addAll(list(round(range.getA()), round(range.getB()), TimeUnit.DAYS));
+        days.add(range.getB());
+        return days;
+    }
+
+    public static boolean isSameDay(Date a, Date b) {
+        return round(a).equals(round(b));
+    }
+
+    public static boolean isSameWeek(Date a, Date b) {
+        return isSameDay(monday(a), monday(b));
+    }
+
+    public static boolean isSameMonth(Date a, Date b) {
+        return isSameDay(monthFirstDay(a), monthFirstDay(b));
+    }
+
+    public static String weekName(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int weekCode = calendar.get(Calendar.DAY_OF_WEEK);
+        switch (weekCode) {
+            case Calendar.MONDAY:
+                return "周一";
+            case Calendar.TUESDAY:
+                return "周二";
+            case Calendar.WEDNESDAY:
+                return "周三";
+            case Calendar.THURSDAY:
+                return "周四";
+            case Calendar.FRIDAY:
+                return "周五";
+            case Calendar.SATURDAY:
+                return "周六";
+            case Calendar.SUNDAY:
+                return "周日";
+        }
+        return "";
     }
 
     static class DateIterator implements Iterator<Date> {
         private long start;
         private long end;
         private TimeUnit unit;
+
         DateIterator(final long start, final long end, final TimeUnit unit) {
             this.start = start;
             this.end = end;
             this.unit = unit;
         }
+
         @Override
         public boolean hasNext() {
             start += unit.toMillis(1);
             return start < end;
         }
+
         @Override
         public Date next() {
             if (start > end) {
@@ -204,9 +293,16 @@ public class Datas {
             }
             return new Date(start);
         }
+
         @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isSameDay(now(), yesday()));
+        System.out.println(weekName(now()));
+        System.out.println(petty(offset(-3)));
     }
 }

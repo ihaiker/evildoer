@@ -45,7 +45,7 @@ public class Assert {
             if (logs != null) {
                 log.info("{} error. {} {} {}", logs, Errors.BadRequest, code, message);
             }
-            throw new HandlerException(Errors.BadRequest.status, code, message);
+            throw new AssertException(Errors.BadRequest.status, code, message);
         }
     }
 
@@ -74,7 +74,7 @@ public class Assert {
             if (logs != null) {
                 log.info("{} error. {} {} {}", logs, Errors.Unauthorized, code, message);
             }
-            throw new HandlerException(Errors.Unauthorized.status, code, message);
+            throw new AssertException(Errors.Unauthorized.status, code, message);
         }
     }
 
@@ -103,7 +103,7 @@ public class Assert {
             if (logs != null) {
                 log.info("{} error. {} {} {}", logs, Errors.Forbidden, code, message);
             }
-            throw new HandlerException(Errors.Forbidden.status, code, message);
+            throw new AssertException(Errors.Forbidden.status, code, message);
         }
     }
 
@@ -132,7 +132,7 @@ public class Assert {
             if (logs != null) {
                 log.info("{} error. {} {} {}", logs, Errors.NotFound, code, message);
             }
-            throw new HandlerException(Errors.NotFound.status, code, message);
+            throw new AssertException(Errors.NotFound.status, code, message);
         }
     }
 
@@ -161,7 +161,7 @@ public class Assert {
             if (logs != null) {
                 log.info("{} error. {} {} {}", logs, Errors.InvalidArgument, code, message);
             }
-            throw new HandlerException(Errors.InvalidArgument.status, code, message);
+            throw new AssertException(Errors.InvalidArgument.status, code, message);
         }
     }
 
@@ -190,7 +190,7 @@ public class Assert {
             if (logs != null) {
                 log.info("{} error. {} {} {}", logs, Errors.MethodNotAllowed, code, message);
             }
-            throw new HandlerException(Errors.MethodNotAllowed.status, code, message);
+            throw new AssertException(Errors.MethodNotAllowed.status, code, message);
         }
     }
 
@@ -219,7 +219,7 @@ public class Assert {
             if (logs != null) {
                 log.info("{} error. {} {} {}", logs, Errors.MissingParameter, code, message);
             }
-            throw new HandlerException(Errors.MissingParameter.status, code, message);
+            throw new AssertException(Errors.MissingParameter.status, code, message);
         }
     }
 
@@ -248,7 +248,7 @@ public class Assert {
             if (logs != null) {
                 log.info("{} error. {} {} {}", logs, Errors.ExecuteFailed, code, message);
             }
-            throw new HandlerException(Errors.ExecuteFailed.status, code, message);
+            throw new AssertException(Errors.ExecuteFailed.status, code, message);
         }
     }
 
@@ -277,7 +277,7 @@ public class Assert {
             if (logs != null) {
                 log.info("{} error. {} {} {}", logs, Errors.InternalSystemError, code, message);
             }
-            throw new HandlerException(Errors.InternalSystemError.status, code, message);
+            throw new AssertException(Errors.InternalSystemError.status, code, message);
         }
     }
 

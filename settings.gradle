@@ -1,3 +1,6 @@
 rootProject.name = 'evildoer'
 
 include "utils"
+
+include "spring/cloud"
+findProject(":spring/cloud")?.name = "spring-cloud"

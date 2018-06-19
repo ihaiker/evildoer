@@ -9,35 +9,35 @@ import lombok.Getter;
  * 系统拦截的异常处理
  */
 @Getter
-public class HandlerException extends RuntimeException {
+public class AssertException extends RuntimeException {
 
     int status;
     String error;
     String message;
 
-    public HandlerException() {
+    public AssertException() {
         this(Errors.InternalSystemError);
     }
 
-    public HandlerException(Errors errorEnum) {
+    public AssertException(Errors errorEnum) {
         this(errorEnum.status, errorEnum.code, errorEnum.message);
     }
 
-    public HandlerException(Errors errorEnum, String message) {
+    public AssertException(Errors errorEnum, String message) {
         this(errorEnum.status, errorEnum.code, message);
     }
 
-    public HandlerException(Errors errorEnum, Throwable throwable) {
+    public AssertException(Errors errorEnum, Throwable throwable) {
         this(errorEnum.status, errorEnum.code, com.google.common.base.Throwables.getStackTraceAsString(throwable));
     }
 
-    public HandlerException(int status, String error, String message) {
+    public AssertException(int status, String error, String message) {
         this.status = status;
         this.error = error;
         this.message = Optional.fromNullable(message).or("服务器忙，请稍后重试！");
     }
 
-    public HandlerException(int status, String error, Throwable throwable) {
+    public AssertException(int status, String error, Throwable throwable) {
         this(status, error, Throwables.getRootCause(throwable).getMessage());
     }
 

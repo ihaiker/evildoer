@@ -6,6 +6,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import lombok.Cleanup;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Processor;
@@ -31,60 +32,61 @@ import java.util.*;
 public class AutoFactoryProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Map<TypeMirror, List<Element>> factory = new HashMap<>();
+        Map<TypeMirror, List<Element>> factoryBeans = new HashMap<>();
         for (Element element : roundEnv.getElementsAnnotatedWith(AutoFactory.class)) {
             if (element.getKind() == ElementKind.CLASS) {
                 if (!element.getModifiers().contains(Modifier.PUBLIC) || element.getModifiers().contains(Modifier.ABSTRACT)) {
                     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, "the class mast be public and or abstract!", element);
                 }
                 AutoFactory autoFactory = element.getAnnotation(AutoFactory.class);
-                TypeMirror inter = getInter(element, autoFactory);
+                TypeMirror inter = getFactoryInterface(element, autoFactory);
                 if (inter == null) {
                     return true;
                 }
-                List<Element> elements = factory.get(inter);
+                List<Element> elements = factoryBeans.get(inter);
                 if (elements == null) {
                     elements = new ArrayList<>();
                 }
-                if(autoFactory.def()){
-                    elements.add(0,element);
-                }else{
+                if (autoFactory.def()) {
+                    elements.add(0, element);
+                } else {
                     elements.add(element);
                 }
-                factory.put(inter, elements);
+                factoryBeans.put(inter, elements);
             }
         }
-        for (Map.Entry<TypeMirror, List<Element>> entry : factory.entrySet()) {
-            ClassName inter = ClassName.bestGuess(entry.getKey().toString());
-            ClassName worker = ClassName.bestGuess("Worker");
+        for (Map.Entry<TypeMirror, List<Element>> entry : factoryBeans.entrySet()) {
+            ClassName superInterface = ClassName.bestGuess(entry.getKey().toString());
+            ClassName factoryName = ClassName.bestGuess(superInterface.simpleName() + "Factory");
+
             List<Element> elements = entry.getValue();
 
-            TypeSpec.Builder workerEnum = TypeSpec.enumBuilder("Worker");
-            for (Element element : elements){
-                String name = element.getSimpleName().toString().replace(inter.simpleName(),"");
-                workerEnum.addEnumConstant(name);
-            }
+
             MethodSpec.Builder method = MethodSpec.methodBuilder("get")
-                    .addModifiers(Modifier.PUBLIC,Modifier.STATIC)
-                    .addParameter(worker,"worker")
-                    .returns(inter);
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .addParameter(factoryName, "worker")
+                    .returns(superInterface);
 
             String statement = "switch(worker){ \n";
-            for (Element element : elements){
-                String name = element.getSimpleName().toString().replace(inter.simpleName(),"");
-                statement += " case "+name+" : return new "+element.getSimpleName()+"(); \n";
+            for (Element element : elements) {
+                String name = element.getSimpleName().toString().replace(superInterface.simpleName(), "");
+                statement += " case " + name + " : return new " + element.getSimpleName() + "(); \n";
             }
             statement += "}";
-            statement += " return new "+elements.get(0).getSimpleName()+"()";
+            statement += " return new " + elements.get(0).getSimpleName() + "()";
             method.addStatement(statement);
 
-            TypeSpec.Builder type = TypeSpec.classBuilder(inter.simpleName()+"Factory")
+
+            TypeSpec.Builder type = TypeSpec.enumBuilder(factoryName)
                     .addModifiers(Modifier.PUBLIC)
                     .addMethod(method.build());
 
-            type.addType(workerEnum.build());
+            for (Element element : elements) {
+                String name = element.getSimpleName().toString().replace(superInterface.simpleName(), "");
+                type.addEnumConstant(name);
+            }
 
-            writeToSourceFile(JavaFile.builder(inter.packageName(),type.build()).build());
+            writeToSourceFile(JavaFile.builder(superInterface.packageName(), type.build()).build());
         }
         return true;
     }
@@ -94,15 +96,14 @@ public class AutoFactoryProcessor extends AbstractProcessor {
             String packageName = javaFile.packageName;
             String className = javaFile.typeSpec.name;
             JavaFileObject jfo = this.processingEnv.getFiler().createSourceFile(packageName + "." + className);
-            Writer writer = jfo.openWriter();
+            @Cleanup Writer writer = jfo.openWriter();
             javaFile.writeTo(writer);
-            writer.close();
         } catch (IOException e) {
             processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, e.getMessage(), null);
         }
     }
 
-    protected TypeMirror getInter(Element element, AutoFactory autoFactory) {
+    protected TypeMirror getFactoryInterface(Element element, AutoFactory autoFactory) {
         try {
             Class<?> clzz = autoFactory.value();
         } catch (MirroredTypesException e) {

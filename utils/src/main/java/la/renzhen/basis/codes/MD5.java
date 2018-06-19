@@ -8,7 +8,9 @@ import java.security.MessageDigest;
 public class MD5 {
 
     /*** 
-     * MD5加码 生成32位md5码 
+     * MD5加码 生成32位md5码
+     * @param inStr 输入值
+     * @return md5
      */
     public static String encode(String inStr) {
         MessageDigest md5 = null;

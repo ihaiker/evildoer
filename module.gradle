@@ -76,6 +76,10 @@ subprojects {
     plugins.withType(JavaPlugin) {
         plugins.apply("idea")
 
+        group "${rootProject.group}"
+        version "${rootProject.version}"
+        archivesBaseName = "${project.name}"
+
         ext {
             sourceCompatibility = JavaVersion.VERSION_1_8
             targetCompatibility = JavaVersion.VERSION_1_8
@@ -217,7 +221,7 @@ subprojects {
                         packaging "jar"
 
                         name "${project.name}"
-                        description '${project.name}'
+                        description "${project.name}"
 
                         licenses {
                             license {
