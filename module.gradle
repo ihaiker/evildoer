@@ -97,7 +97,7 @@ subprojects {
         jar {
             manifest {
                 attributes "X-Application-Group": "${rootProject.group}"
-                attributes "X-Application-Name": "${project.name}"
+                attributes "X-Application-Name": "${rootProject.name}-${project.name}"
                 attributes "X-Application-Version": "${rootProject.version}"
                 attributes "X-Application-BuildTime": new java.text.SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date())
             }

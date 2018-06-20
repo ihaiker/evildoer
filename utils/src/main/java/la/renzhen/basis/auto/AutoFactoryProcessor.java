@@ -61,7 +61,6 @@ public class AutoFactoryProcessor extends AbstractProcessor {
 
             List<Element> elements = entry.getValue();
 
-
             MethodSpec.Builder method = MethodSpec.methodBuilder("get")
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(factoryName, "worker")
