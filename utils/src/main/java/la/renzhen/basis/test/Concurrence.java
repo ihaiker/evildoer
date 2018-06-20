@@ -35,7 +35,7 @@ public class Concurrence {
     /**
      * 相同接口的竞争测试
      *
-     * @param runnable
+     * @param runnable runnable task
      */
     public void one(Callable<Object> runnable) {
         this.runnable.add(runnable);

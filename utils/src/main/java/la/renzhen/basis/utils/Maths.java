@@ -74,7 +74,7 @@ public class Maths {
      * @param v2           v2
      * @param scale        保留小数位数
      * @param roundingMode 保留小数位数模式
-     * @return
+     * @return 计算结果
      */
     public static double multiply(double v1, double v2, int scale, RoundingMode roundingMode) {
         BigDecimal b1 = new BigDecimal(Double.toString(v1));
@@ -125,9 +125,9 @@ public class Maths {
     /**
      * 格式话输出
      *
-     * @param v1
-     * @param digits
-     * @return
+     * @param v1     数字
+     * @param digits 小数保留位数
+     * @return 格式化结果
      */
     public static String format(double v1, int digits) {
         return format(v1, digits, RoundingMode.DOWN);
@@ -136,10 +136,10 @@ public class Maths {
     /**
      * 格式化输出，千分位不带逗号
      *
-     * @param v1
+     * @param v1           数字
      * @param digits       保留小数位数
      * @param roundingMode 小数位数保留方式
-     * @return
+     * @return 格式化结果
      */
     public static String format(double v1, int digits, RoundingMode roundingMode) {
         DecimalFormat f = new DecimalFormat("##0.0000000000");
@@ -152,8 +152,8 @@ public class Maths {
     /**
      * 格式刷输出，{@link RoundingMode#DOWN} 保留两位小数
      *
-     * @param v1
-     * @return
+     * @param v1 数字
+     * @return 格式化结果
      */
     public static String pretty(double v1) {
         return pretty(v1, 2, RoundingMode.DOWN);
@@ -162,9 +162,9 @@ public class Maths {
     /**
      * 格式刷输出，{@link RoundingMode#DOWN}
      *
-     * @param v1
+     * @param v1     数字
      * @param digits 保留小数位数
-     * @return
+     * @return 格式化结果
      */
     public static String pretty(double v1, int digits) {
         return pretty(v1, digits, RoundingMode.DOWN);
@@ -176,6 +176,7 @@ public class Maths {
      * @param v1           v1
      * @param digits       保留小数位数
      * @param roundingMode 小数位数保留方式
+     * @return 优化格式结果
      */
     public static String pretty(double v1, int digits, RoundingMode roundingMode) {
         DecimalFormat f = new DecimalFormat("###,###,###,###,##0.0000000000");
@@ -186,6 +187,8 @@ public class Maths {
 
     /**
      * {@link RoundingMode#DOWN} 保留2位
+     * @param d number
+     * @return 保留结果
      */
     public static double scale(double d) {
         return new BigDecimal(Double.toString(d)).setScale(2, BigDecimal.ROUND_DOWN).doubleValue();
@@ -193,11 +196,21 @@ public class Maths {
 
     /**
      * {@link RoundingMode#DOWN} 保留 scale位小数
+     *
+     * @param d     数
+     * @param scale 保留小数位数
+     * @return out
      */
     public static double scale(double d, int scale) {
         return new BigDecimal(d).setScale(scale, BigDecimal.ROUND_DOWN).doubleValue();
     }
 
+    /**
+     * @param d            数
+     * @param scale        保留小数位数
+     * @param roundingMode 小数位round模式
+     * @return out
+     */
     public static double scale(double d, int scale, RoundingMode roundingMode) {
         return new BigDecimal(d).setScale(scale, roundingMode).doubleValue();
     }

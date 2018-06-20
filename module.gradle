@@ -78,7 +78,7 @@ subprojects {
 
         group "${rootProject.group}"
         version "${rootProject.version}"
-        archivesBaseName = "${project.name}"
+        archivesBaseName = "${rootProject.name}-${project.name}"
 
         ext {
             sourceCompatibility = JavaVersion.VERSION_1_8

@@ -14,7 +14,7 @@ public class Version {
      * @param version2 版本2
      * @return 1，0，-1
      */
-    public static int compare(String version1, String version2) throws Exception {
+    public static int compare(String version1, String version2)  {
         if (isNullOrEmpty(version1)) {
             return -1;
         }

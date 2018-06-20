@@ -41,28 +41,32 @@ public class Datas {
     }
 
     /**
-     * 获取星期一
+     * @return 获取星期一
      */
     public static Date monday() {
         return weekDay(Calendar.MONDAY);
     }
 
     /**
-     * 获取星期一
+     * 获取指定日期所在星期的星期一
+     *
+     * @param date 日期
+     * @return 获取星期一
      */
     public static Date monday(Date date) {
         return weekDay(date, Calendar.MONDAY);
     }
 
     /**
-     * 获取星期天
+     * @param date 指定日期
+     * @return 指定日期的所在周的星期天
      */
     public static Date sunday(Date date) {
         return weekDay(date, Calendar.SUNDAY);
     }
 
     /**
-     * 获取星期天
+     * @return 获取星期天
      */
     public static Date sunday() {
         return weekDay(Calendar.SUNDAY);
