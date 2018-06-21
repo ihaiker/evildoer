@@ -89,8 +89,8 @@ subprojects {
         idea {
             module {
                 downloadSources = true
-                outputDir = file('build/classes/main')
-                testOutputDir = file('build/classes/test')
+                outputDir = file('build/classes/java/main')
+                testOutputDir = file('build/classes/java/test')
             }
         }
 
