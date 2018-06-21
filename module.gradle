@@ -161,7 +161,7 @@ subprojects {
             classifier = 'boot'
         }
 
-        task copyRuntime(type: Copy, dependsOn: [startUpScript, build]) {
+        task copyRuntime(type: Copy, dependsOn: build) {
             doFirst {
                 file("${project.buildDir}/service").withOutputStream { out ->
                     new URL("https://github.com/ihaiker/evildoer/raw/master/service.sh").withInputStream { from ->  out << from; }
