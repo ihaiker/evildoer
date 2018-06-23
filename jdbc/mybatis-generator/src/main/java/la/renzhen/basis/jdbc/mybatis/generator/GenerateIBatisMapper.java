@@ -4,9 +4,7 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import la.renzhen.basis.Tuple;
-import la.renzhen.basis.jdbc.mybatis.plugins.MapperAnnotationPlugin;
-import la.renzhen.basis.jdbc.mybatis.plugins.MapperXmlOverWritePlugin;
-import la.renzhen.basis.jdbc.mybatis.plugins.SqlCommentGenerator;
+import la.renzhen.basis.jdbc.mybatis.plugins.*;
 import lombok.Data;
 import lombok.SneakyThrows;
 import org.apache.ibatis.type.EnumTypeHandler;
@@ -36,7 +34,10 @@ public class GenerateIBatisMapper {
             SerializablePlugin.class,
             ToStringPlugin.class,
             MapperAnnotationPlugin.class,
-            MapperXmlOverWritePlugin.class
+            MapperXmlOverWritePlugin.class,
+            OffsetLimitPlugin.class,
+            ExampleWithPlugin.class,
+            ConditionalJudgmentPlugin.class
     );
 
     public String modulePath = "src/main/java";

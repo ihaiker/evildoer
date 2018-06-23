@@ -8,6 +8,7 @@ import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.MergeConstants;
 
 import java.util.Properties;
+import java.util.Set;
 
 /**
  */
@@ -35,8 +36,35 @@ public class SqlCommentGenerator implements CommentGenerator {
     public void addRootComment(XmlElement rootElement) {
         return;
     }
+
+    @Override
+    public void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable, Set<FullyQualifiedJavaType> imports) {
+
+    }
+
+    @Override
+    public void addGeneralMethodAnnotation(Method method, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {
+
+    }
+
+    @Override
+    public void addFieldAnnotation(Field field, IntrospectedTable introspectedTable, Set<FullyQualifiedJavaType> imports) {
+
+    }
+
+    @Override
+    public void addFieldAnnotation(Field field, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn, Set<FullyQualifiedJavaType> imports) {
+
+    }
+
+    @Override
+    public void addClassAnnotation(InnerClass innerClass, IntrospectedTable introspectedTable, Set<FullyQualifiedJavaType> imports) {
+
+    }
+
     @Override
     public void addConfigurationProperties(Properties properties) {
+
     }
 
     /**
@@ -96,6 +124,12 @@ public class SqlCommentGenerator implements CommentGenerator {
         field.addJavaDocLine(sb.toString().replace("\n", " "));
         field.addJavaDocLine(" */");
     }
+
+    @Override
+    public void addModelClassComment(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+
+    }
+
     @Override
     public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {
         method.addJavaDocLine("/**");
