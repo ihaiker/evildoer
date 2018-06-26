@@ -32,13 +32,6 @@ public class ConditionalJudgmentPlugin extends PluginAdapterEnhance {
         ifEmpty(innerClass);
         ifNotEmpty(innerClass);
 
-//        greatThan(innerClass);
-//        greatOrEqual(innerClass);
-//
-//        lessThan(innerClass);
-//        lessOrEqual(innerClass);
-//        range(innerClass);
-//
         equals(innerClass);
         return true;
     }
@@ -91,6 +84,10 @@ public class ConditionalJudgmentPlugin extends PluginAdapterEnhance {
         method(innerClass, "ifNotEmpty", true, (ic, method) -> {
             method.addParameter(new Parameter(new FullyQualifiedJavaType("String"), "t"));
             method.addBodyLine("if(t != null && !\"\".trim().equals(t)){ return fn.apply(t); }");
+        });
+        method(innerClass, "notEmpty", false, (ic, method) -> {
+            method.addParameter(new Parameter(new FullyQualifiedJavaType("String"), "t"));
+            method.addBodyLine("if(t != null && !\"\".trim().equals(t)){  cr.accept(this); }");
         });
     }
 

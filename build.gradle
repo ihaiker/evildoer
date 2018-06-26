@@ -2,3 +2,30 @@ group 'la.renzhen.basis'
 version '1.0.0-SNAPSHOT'
 
 apply from: "module.gradle"
+
+subprojects {
+    plugins.withType(MavenPlugin) {
+        uploadArchives {
+            configuration = configurations.archives
+            repositories {
+                mavenDeployer {
+                    pom.project {
+                        inceptionYear "20180612"
+                        scm {
+                            connection 'scm:git:https://github.com/ihaiker/evildoer.git'
+                            developerConnection 'scm:git:https://github.com/ihaiker/evildoer.git'
+                            url 'https://github.com/ihaiker/evildoer.git'
+                        }
+                        developers {
+                            developer {
+                                id 'ihaiker'
+                                name 'haiker'
+                                email 'wo@reznzhen.la'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
