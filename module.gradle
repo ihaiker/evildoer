@@ -21,7 +21,6 @@ ext {
 *   3、按照项目名称，指定不同私服。获取系统变量：${rootProject.name.toUpperCase}_NEXUS_PATH=http://maven.aliyun.com/nexus/
 *   4、默认私服地址，NEXUS_PRIVATE_PATH=http://maven.aliyun.com/nexus/
 * */
-
 def NexusPrivateService() {
     String path = System.getProperty("nexus.private.service")
     if (path == null || "".equals(path)) {
@@ -37,6 +36,14 @@ def NexusPrivateService() {
         path = System.getenv("NEXUS_PRIVATE_PATH");
     }
     return path;
+}
+
+def NexusRepositoriesDefined() {
+    String nrs = System.getProperty("nexus.repositories")
+    if( nrs == null ){
+        nrs = rootProject.getProperties().get("nexus.repositories")
+    }
+    return nrs.split(",")
 }
 
 subprojects {
@@ -59,6 +66,11 @@ subprojects {
         if (nexusPrivatePath != null && !"".equals(nexusPrivatePath)) {
             maven { url "${nexusPrivatePath}/content/groups/public/" }
         }
+
+        for(item in NexusRepositoriesDefined()){
+            maven { url "${item}" }
+        }
+
         maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
         mavenCentral()
     }
