@@ -41,7 +41,7 @@ def NexusPrivateService() {
 def NexusRepositoriesDefined() {
     String nrs = System.getProperty("nexus.repositories")
     if( nrs == null ){
-        nrs = rootProject.getProperties().get("nexus.repositories")
+        nrs = rootProject.getProperties().get("nexus.repositories","")
     }
     return nrs.split(",")
 }
