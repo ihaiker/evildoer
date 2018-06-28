@@ -20,7 +20,7 @@ body {
     overflow-x: hidden;
 }
 
-body,p, a {
+body,p, a, .btn {
     font-family: 'Open Sans', helvetica, arial, sans-serif;
     font-size: 12px;
 }
