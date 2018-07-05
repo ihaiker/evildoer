@@ -10,6 +10,7 @@ subprojects {
             repositories {
                 mavenDeployer {
                     pom.project {
+                        url "https://github.com/ihaiker/evildoer.git"
                         inceptionYear "20180612"
                         scm {
                             connection 'scm:git:https://github.com/ihaiker/evildoer.git'

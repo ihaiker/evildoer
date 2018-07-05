@@ -138,9 +138,15 @@ subprojects {
             from "${buildDir}/docs/javadoc"
         }
 
-        artifacts {
-            archives sourceJar
-            archives javadocJar
+        if ("true".equals(rootProject.getProperties().get("is.oss.sonatype"))) {
+            artifacts {
+                archives sourceJar
+                archives javadocJar
+            }
+        }else{
+            artifacts {
+                archives sourceJar
+            }
         }
     }
 

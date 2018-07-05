@@ -1036,3 +1036,5 @@ table.table.list tr:first-child td {
 .pagination{
     margin: 0 0;
 }
+
+.form-control {height: 31px}
