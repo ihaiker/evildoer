@@ -201,7 +201,7 @@ subprojects {
             }
             into("lib") {
                 from(configurations.runtime)
-                from("${project.buildDir}/libs/${jar.baseName}.jar")
+                from("${project.buildDir}/libs/${jar.baseName}-${project.version}.jar")
             }
             destinationDir = file("${project.buildDir}/assembly")
         }
