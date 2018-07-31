@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
  * @author <a href="mailto:zhouhaichao@2008.sina.com">haiker</a>
  * @version 18/06/2018 10:04 PM
  */
-public class Datas {
+public class Dates {
 
     static final String FORMATE_TIME = "HH:mm:ss";
     static final String DEFAULT_FORMATE = "yyyy-MM-dd HH:mm:ss";
@@ -24,8 +24,11 @@ public class Datas {
         return new Date();
     }
 
-    public static Date yesday() {
+    public static Date yesterday() {
         return offset(-1);
+    }
+    public static String yesterday(String format) {
+        return format(offset(-1),format);
     }
 
     public static Date weekDay(int day) {
@@ -302,11 +305,5 @@ public class Datas {
         public void remove() {
             throw new UnsupportedOperationException();
         }
-    }
-
-    public static void main(String[] args) {
-        System.out.println(isSameDay(now(), yesday()));
-        System.out.println(weekName(now()));
-        System.out.println(petty(offset(-3)));
     }
 }

@@ -51,9 +51,9 @@ public class GenerateIBatisMapper {
                 "/application-jdbc.properties",
                 "/application-datasource.properties",
 
-                "/application.yaml",
-                "/application-jdbc.yaml",
-                "/application-datasource.yaml",
+                "/application.yaml", "/application.yml",
+                "/application-jdbc.yaml", "/application-jdbc.yml",
+                "/application-datasource.yaml", "/application-datasource.yml",
 
                 "/jdbc.properties",
                 "/datasource.properties",
