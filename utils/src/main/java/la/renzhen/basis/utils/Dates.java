@@ -130,9 +130,11 @@ public class Dates {
 
         if (delta < TimeUnit.MINUTES.toMillis(1)) {
             return TimeUnit.MILLISECONDS.toSeconds(delta) + "秒前";
-        } else if (delta < TimeUnit.HOURS.toMillis(1)) {
+        }
+        else if (delta < TimeUnit.HOURS.toMillis(1)) {
             return TimeUnit.MILLISECONDS.toMinutes(delta) + "分钟前";
-        } else if (delta < TimeUnit.DAYS.toMinutes(1)) {
+        }
+        else if (delta < TimeUnit.DAYS.toMillis(1)) {
             return TimeUnit.MILLISECONDS.toHours(delta) + "小时前";
         } else {
             int day = (int) TimeUnit.MILLISECONDS.toDays(delta);
