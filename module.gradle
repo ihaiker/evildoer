@@ -21,16 +21,17 @@ ext {
 *   3、按照项目名称，指定不同私服。获取系统变量：${rootProject.name.toUpperCase}_NEXUS_PATH=http://maven.aliyun.com/nexus/
 *   4、默认私服地址，NEXUS_PRIVATE_PATH=http://maven.aliyun.com/nexus/
 * */
+
 def NexusPrivateService() {
     String path = System.getProperty("nexus.private.service")
     if (path == null || "".equals(path)) {
         path = rootProject.getProperties().get("nexus.private.service")
     }
     if (path == null || "".equals(path)) {
-        path = System.getenv("${rootProject.group}_${rootProject.name}_NEXUS_PATH".replaceAll("\\.","_").toUpperCase());
+        path = System.getenv("${rootProject.group}_${rootProject.name}_NEXUS_PATH".replaceAll("\\.", "_").toUpperCase());
     }
     if (path == null || "".equals(path)) {
-        path = System.getenv("${rootProject.name}_NEXUS_PATH".replaceAll("\\.","_").toUpperCase());
+        path = System.getenv("${rootProject.name}_NEXUS_PATH".replaceAll("\\.", "_").toUpperCase());
     }
     if (path == null || "".equals(path)) {
         path = System.getenv("NEXUS_PRIVATE_PATH");
@@ -40,10 +41,22 @@ def NexusPrivateService() {
 
 def NexusRepositoriesDefined() {
     String nrs = System.getProperty("nexus.repositories")
-    if( nrs == null ){
-        nrs = rootProject.getProperties().get("nexus.repositories","")
+    if (nrs == null) {
+        nrs = rootProject.getProperties().get("nexus.repositories", "")
     }
     return nrs.split(",")
+}
+
+def RepositorySecurity(String repositoriesPath, String type) {
+    String key = repositoriesPath.replaceFirst("http://", "").replaceFirst("https://", "") + "." + type;
+    String value = rootProject.getProperties().get(key);
+    if (value == null || "".equals(value)) {
+        value = System.getenv(key.replaceAll("\\.", "_").toUpperCase());
+    }
+    if (value == null || "".equals(value)) {
+        value = rootProject.getProperties().get(type);
+    }
+    return value;
 }
 
 subprojects {
@@ -67,7 +80,7 @@ subprojects {
             maven { url "${nexusPrivatePath}/content/groups/public/" }
         }
 
-        for(item in NexusRepositoriesDefined()){
+        for (item in NexusRepositoriesDefined()) {
             maven { url "${item}" }
         }
 
@@ -143,7 +156,7 @@ subprojects {
                 archives sourceJar
                 archives javadocJar
             }
-        }else{
+        } else {
             artifacts {
                 archives sourceJar
             }
@@ -182,7 +195,7 @@ subprojects {
         task copyRuntime(type: Copy, dependsOn: build) {
             doFirst {
                 file("${project.buildDir}/service").withOutputStream { out ->
-                    new URL("https://github.com/ihaiker/evildoer/raw/master/service.sh").withInputStream { from ->  out << from; }
+                    new URL("https://github.com/ihaiker/evildoer/raw/master/service.sh").withInputStream { from -> out << from; }
                 }
             }
             from(file("${project.buildDir}/service")) {
@@ -219,17 +232,23 @@ subprojects {
                 mavenDeployer {
                     if ("true".equals(rootProject.getProperties().get("is.oss.sonatype"))) {
                         snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                            authentication(userName: ossUsername, password: ossPassword)
+                            authentication(userName: RepositorySecurity("", "ossrhUsername"), password: RepositorySecurity("", "ossrhPassword"))
                         }
                         repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                            authentication(userName: ossUsername, password: ossPassword)
+                            authentication(userName: RepositorySecurity("", "ossrhUsername"), password: RepositorySecurity("", "ossrhPassword"))
                         }
-                    }else{
+                    } else {
                         snapshotRepository(url: "${nexusPrivatePath}/content/repositories/snapshots") {
-                            authentication(userName: ossUsername, password: ossPassword)
+                            authentication(
+                                    userName: RepositorySecurity(nexusPrivatePath, "ossrhUsername"),
+                                    password: RepositorySecurity(nexusPrivatePath, "ossrhPassword")
+                            )
                         }
                         repository(url: "${nexusPrivatePath}/content/repositories/releases") {
-                            authentication(userName: ossUsername, password: ossPassword)
+                            authentication(
+                                    userName: RepositorySecurity(nexusPrivatePath, "ossrhUsername"),
+                                    password: RepositorySecurity(nexusPrivatePath, "ossrhPassword")
+                            )
                         }
                     }
                     pom.project {

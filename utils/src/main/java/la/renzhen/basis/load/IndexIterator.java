@@ -3,7 +3,6 @@ package la.renzhen.basis.load;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -19,18 +18,29 @@ public class IndexIterator<Index, Out> implements Iterator<Out>, Closeable {
     Index index = null;
 
     Function<Index, List<Out>> loader;
+    Function<Out, Index> lastIndexFn;
     Runnable closeFn;
 
     List<Out> data = new ArrayList<>();
 
     public IndexIterator(Function<Index, List<Out>> loader) {
-        this(loader, () -> {
+        this(loader, null, () -> {
+        });
+    }
+
+    public IndexIterator(Function<Index, List<Out>> loader, Function<Out, Index> lastIndex) {
+        this(loader, lastIndex, () -> {
         });
     }
 
     public IndexIterator(Function<Index, List<Out>> loader, Runnable closeFn) {
+        this(loader, null, closeFn);
+    }
+
+    public IndexIterator(Function<Index, List<Out>> loader, Function<Out, Index> lastIndex, Runnable closeFn) {
         this.loader = loader;
         this.closeFn = closeFn;
+        this.lastIndexFn = lastIndex;
     }
 
     @Override
@@ -44,13 +54,17 @@ public class IndexIterator<Index, Out> implements Iterator<Out>, Closeable {
         return !data.isEmpty();
     }
 
-    public void setIndex(Index index){
+    public void setIndex(Index index) {
         this.index = index;
     }
 
     @Override
     public Out next() {
-        return data.remove(0);
+        Out out = data.remove(0);
+        if (lastIndexFn != null) {
+            setIndex(lastIndexFn.apply(out));
+        }
+        return out;
     }
 
     @Override
@@ -61,5 +75,8 @@ public class IndexIterator<Index, Out> implements Iterator<Out>, Closeable {
     @Override
     public void close() throws IOException {
         data.clear();
+        if (closeFn != null) {
+            closeFn.run();
+        }
     }
 }
