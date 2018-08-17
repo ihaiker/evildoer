@@ -83,7 +83,7 @@ public class GenerateIBatisMapper {
         List<String> configFiles = configFiles();
         for (String configFile : configFiles) {
             try {
-                if (configFile.endsWith(".yaml")) {
+                if (configFile.endsWith(".yaml") || configFile.endsWith(".yml")) {
                     config.putAll(new Yaml2Prop().getProperties(GenerateIBatisMapper.class.getResourceAsStream(configFile)));
                 } else {
                     config.load(GenerateIBatisMapper.class.getResourceAsStream(configFile));
@@ -102,7 +102,7 @@ public class GenerateIBatisMapper {
     private String configValue(Properties config, List<String> keys) {
         for (String key : keys) {
             String value = config.getProperty(key);
-            if (value != null || !"".equals(value)) {
+            if (value != null && !"".equals(value)) {
                 return value;
             }
         }
