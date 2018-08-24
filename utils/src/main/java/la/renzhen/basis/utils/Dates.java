@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.SneakyThrows;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -195,6 +196,13 @@ public class Dates {
         return new Date(date.getTime() + field.toMillis(offset));
     }
 
+    public static Date offset(Date date, Duration duration){
+        return new Date(date.getTime() + duration.toMillis());
+    }
+    public static Date offset(Duration duration){
+        return offset(new Date(),duration);
+    }
+
     public static Date parseDay(String date) {
         return parse(date + " 00:00:00", DEFAULT_FORMATE);
     }
@@ -304,9 +312,5 @@ public class Dates {
         public void remove() {
             throw new UnsupportedOperationException();
         }
-    }
-
-    public static void main(String[] args) {
-        System.out.println(DateChain.now().offset(TimeUnit.MINUTES,40).string());
     }
 }

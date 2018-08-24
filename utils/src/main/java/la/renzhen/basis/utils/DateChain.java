@@ -4,6 +4,7 @@ import la.renzhen.basis.Tuple;
 import lombok.SneakyThrows;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -58,6 +59,11 @@ public class DateChain {
 
     public DateChain offset(TimeUnit field, int offset) {
         this.date = Dates.offset(date, field, offset);
+        return this;
+    }
+
+    public DateChain offset(Duration duration) {
+        this.date.setTime(this.date.getTime() + duration.toMillis());
         return this;
     }
 
