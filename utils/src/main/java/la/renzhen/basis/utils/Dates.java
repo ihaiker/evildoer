@@ -2,6 +2,7 @@ package la.renzhen.basis.utils;
 
 import com.google.common.collect.Lists;
 import la.renzhen.basis.Tuple;
+import lombok.Data;
 import lombok.SneakyThrows;
 
 import java.text.SimpleDateFormat;
@@ -27,8 +28,9 @@ public class Dates {
     public static Date yesterday() {
         return offset(-1);
     }
+
     public static String yesterday(String format) {
-        return format(offset(-1),format);
+        return format(offset(-1), format);
     }
 
     public static Date weekDay(int day) {
@@ -130,11 +132,9 @@ public class Dates {
 
         if (delta < TimeUnit.MINUTES.toMillis(1)) {
             return TimeUnit.MILLISECONDS.toSeconds(delta) + "秒前";
-        }
-        else if (delta < TimeUnit.HOURS.toMillis(1)) {
+        } else if (delta < TimeUnit.HOURS.toMillis(1)) {
             return TimeUnit.MILLISECONDS.toMinutes(delta) + "分钟前";
-        }
-        else if (delta < TimeUnit.DAYS.toMillis(1)) {
+        } else if (delta < TimeUnit.DAYS.toMillis(1)) {
             return TimeUnit.MILLISECONDS.toHours(delta) + "小时前";
         } else {
             int day = (int) TimeUnit.MILLISECONDS.toDays(delta);
@@ -180,22 +180,19 @@ public class Dates {
     }
 
     public static Date offset(int offset) {
-        return offset(new Date(), Calendar.DAY_OF_YEAR, offset);
+        return offset(new Date(), TimeUnit.DAYS, offset);
     }
 
-    public static Date offset(int field, int offset) {
+    public static Date offset(TimeUnit field, int offset) {
         return offset(new Date(), field, offset);
     }
 
     public static Date offset(Date date, int offset) {
-        return offset(date, Calendar.DAY_OF_YEAR, offset);
+        return offset(date, TimeUnit.DAYS, offset);
     }
 
-    public static Date offset(Date date, int field, int offset) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(field, offset);
-        return calendar.getTime();
+    public static Date offset(Date date, TimeUnit field, int offset) {
+        return new Date(date.getTime() + field.toMillis(offset));
     }
 
     public static Date parseDay(String date) {
@@ -307,5 +304,9 @@ public class Dates {
         public void remove() {
             throw new UnsupportedOperationException();
         }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(DateChain.now().offset(TimeUnit.MINUTES,40).string());
     }
 }

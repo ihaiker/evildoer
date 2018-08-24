@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 日期类链式处理<p>
@@ -52,24 +53,24 @@ public class DateChain {
     }
 
     public DateChain offset(int offset) {
-        return offset(Calendar.DAY_OF_YEAR, offset);
+        return offset(TimeUnit.DAYS, offset);
     }
 
-    public DateChain offset(int field, int offset) {
+    public DateChain offset(TimeUnit field, int offset) {
         this.date = Dates.offset(date, field, offset);
         return this;
     }
 
     public DateChain offsetHour(int offset) {
-        return offset(Calendar.HOUR, offset);
+        return offset(TimeUnit.HOURS, offset);
     }
 
     public DateChain offsetMinute(int offset) {
-        return offset(Calendar.MINUTE, offset);
+        return offset(TimeUnit.MINUTES, offset);
     }
 
     public DateChain offsetSecond(int offset) {
-        return offset(Calendar.SECOND, offset);
+        return offset(TimeUnit.SECONDS, offset);
     }
 
     /**
