@@ -7,7 +7,7 @@ ext {
     springBootVersion = '1.5.9.RELEASE'
     springCloudVersion = 'Edgware.RELEASE'
 
-    runEnv = project.getProperties().getOrDefault('env', 'dev').toString()
+    runEnv = rootProject.getProperties().getOrDefault('env', 'dev').toString()
     if (runEnv.equals('product') || runEnv.equals('online')) {
         version version.replaceAll("-SNAPSHOT", "-RELEASE")
     }
@@ -91,7 +91,9 @@ subprojects {
     configurations.all {
         resolutionStrategy {
             eachDependency { details ->
-                if (runEnv.equals("product") && details.requested.group.startsWith(rootProject.getProperties().get("group.package.prefix"))) {
+                if(details.requested.name.equals("api") || details.requested.name.equals("entry") || details.requested.name.equals("server")){
+
+                }else if (runEnv.equals("product") && details.requested.group.startsWith(rootProject.getProperties().get("group.package.prefix"))) {
                     details.useVersion(details.requested.version.replaceAll("-SNAPSHOT", "-RELEASE"))
                 }
             }
