@@ -91,7 +91,8 @@ subprojects {
     configurations.all {
         resolutionStrategy {
             eachDependency { details ->
-                if(details.requested.name.equals("api") || details.requested.name.equals("entry") || details.requested.name.equals("server")){
+                if(details.requested.name.endsWith("-module") ||
+                details.requested.name.equals("api") || details.requested.name.equals("entry") || details.requested.name.equals("server")){
 
                 }else if (runEnv.equals("product") && details.requested.group.startsWith(rootProject.getProperties().get("group.package.prefix"))) {
                     details.useVersion(details.requested.version.replaceAll("-SNAPSHOT", "-RELEASE"))
