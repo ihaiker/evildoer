@@ -22,8 +22,9 @@ public class DateChain {
     Date date;
 
     public static DateChain date(Date date) {
+        assert date != null;
         DateChain dataLine = new DateChain();
-        dataLine.date = new Date();
+        dataLine.date = date;
         dataLine.format = new SimpleDateFormat(Dates.DEFAULT_FORMATE);
         return dataLine;
     }
