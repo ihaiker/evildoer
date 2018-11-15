@@ -1,12 +1,11 @@
 group 'la.renzhen.basis'
-version '1.2.1'
+version '1.2.2'
 
 apply from: "module.gradle"
 
 subprojects {
     plugins.withType(MavenPlugin) {
         uploadArchives {
-            configuration = configurations.archives
             repositories {
                 mavenDeployer {
                     pom.project {

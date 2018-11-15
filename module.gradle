@@ -2,6 +2,7 @@ ext {
     nexusPrivatePath = NexusPrivateService()
     ossUsername = rootProject.getProperties().get("ossrhUsername")
     ossPassword = rootProject.getProperties().get("ossrhPassword")
+    isOssSonatype = "true".equals(rootProject.getProperties().get("is.oss.sonatype"))
 
     springVersion = "4.3.13.RELEASE"
     springBootVersion = '1.5.9.RELEASE'
@@ -91,10 +92,10 @@ subprojects {
     configurations.all {
         resolutionStrategy {
             eachDependency { details ->
-                if(details.requested.name.endsWith("-module") ||
-                details.requested.name.equals("api") || details.requested.name.equals("entry") || details.requested.name.equals("server")){
+                if (details.requested.name.endsWith("-module") ||
+                        details.requested.name.equals("api") || details.requested.name.equals("entry") || details.requested.name.equals("server")) {
 
-                }else if (runEnv.equals("product") && details.requested.group.startsWith(rootProject.getProperties().get("group.package.prefix"))) {
+                } else if (runEnv.equals("product") && details.requested.group.startsWith(rootProject.getProperties().get("group.package.prefix"))) {
                     details.useVersion(details.requested.version.replaceAll("-SNAPSHOT", "-RELEASE"))
                 }
             }
@@ -154,7 +155,7 @@ subprojects {
             from "${buildDir}/docs/javadoc"
         }
 
-        if ("true".equals(rootProject.getProperties().get("is.oss.sonatype"))) {
+        if (isOssSonatype) {
             artifacts {
                 archives sourceJar
                 archives javadocJar
@@ -174,21 +175,6 @@ subprojects {
             }
         }
     })
-
-    plugins.withType(SigningPlugin) {
-        signing {
-            sign configurations.archives
-        }
-        uploadArchives {
-            repositories {
-                mavenDeployer {
-                    beforeDeployment {
-                        MavenDeployment deployment -> signing.signPom(deployment);
-                    }
-                }
-            }
-        }
-    }
 
     plugins.withId('org.springframework.boot', {
         bootRepackage {
@@ -228,12 +214,12 @@ subprojects {
         }
     })
 
-    plugins.withType(MavenPlugin) {
+    plugins.withType(MavenPlugin, {
         uploadArchives {
             configuration = configurations.archives
             repositories {
                 mavenDeployer {
-                    if ("true".equals(rootProject.getProperties().get("is.oss.sonatype"))) {
+                    if (isOssSonatype) {
                         snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
                             authentication(userName: RepositorySecurity("", "ossrhUsername"), password: RepositorySecurity("", "ossrhPassword"))
                         }
@@ -274,5 +260,20 @@ subprojects {
                 }
             }
         }
-    }
+    })
+
+    plugins.withType(SigningPlugin, {
+        signing {
+            sign configurations.archives
+        }
+        uploadArchives {
+            repositories {
+                mavenDeployer {
+                    beforeDeployment {
+                        MavenDeployment deployment -> signing.signPom(deployment);
+                    }
+                }
+            }
+        }
+    })
 }

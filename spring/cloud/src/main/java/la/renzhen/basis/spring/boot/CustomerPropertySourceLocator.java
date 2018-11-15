@@ -1,5 +1,6 @@
 package la.renzhen.basis.spring.boot;
 
+import la.renzhen.basis.utils.Dates;
 import org.springframework.boot.env.EnumerableCompositePropertySource;
 import org.springframework.cloud.bootstrap.config.PropertySourceLocator;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertySource;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +28,7 @@ public class CustomerPropertySourceLocator implements PropertySourceLocator {
         Map<String, Object> attr = new HashMap<String, Object>();
         attr.put("evildoer.author.name", "haiker");
         attr.put("evildoer.author.mail", "wo@renzhen.la");
+        attr.put("evildoer.start.time", Dates.format(new Date()));
         source.add(new MapPropertySource("customProperty", attr));
         return source;
     }
