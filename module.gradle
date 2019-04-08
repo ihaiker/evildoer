@@ -49,7 +49,12 @@ def NexusRepositoriesDefined() {
 }
 
 def RepositorySecurity(String repositoriesPath, String type) {
-    String key = repositoriesPath.replaceFirst("http://", "").replaceFirst("https://", "") + "." + type;
+    String key = "";
+    if(repositoriesPath == null || "".equals(repositoriesPath)){
+        key = type;
+    }else{
+        key = repositoriesPath.replaceFirst("http://", "").replaceFirst("https://", "") + "." + type;
+    }
     String value = rootProject.getProperties().get(key);
     if (value == null || "".equals(value)) {
         value = System.getenv(key.replaceAll("\\.", "_").toUpperCase());
