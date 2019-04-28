@@ -34,7 +34,7 @@ public class ConsistentHash<S extends ServerNode> {
     /**
      * 添加一个负载服务器，注意：最好参数node实现
      *
-     * @param node
+     * @param node 服务节点
      */
     public void addServerNode(S node) {
         if (null == serverNodes) {

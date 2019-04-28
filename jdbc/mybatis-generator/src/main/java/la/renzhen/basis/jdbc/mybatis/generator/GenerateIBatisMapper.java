@@ -1,12 +1,17 @@
 package la.renzhen.basis.jdbc.mybatis.generator;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import la.renzhen.basis.Tuple;
+import la.renzhen.basis.jdbc.mybatis.headler.LongDateTypeHandler;
 import la.renzhen.basis.jdbc.mybatis.plugins.*;
 import lombok.Data;
 import lombok.SneakyThrows;
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.ibatis.type.BaseTypeHandler;
+import org.apache.ibatis.type.EnumOrdinalTypeHandler;
 import org.apache.ibatis.type.EnumTypeHandler;
 import org.apache.ibatis.type.TypeHandler;
 import org.mybatis.generator.api.MyBatisGenerator;
@@ -26,9 +31,21 @@ import java.util.function.Consumer;
 @Data
 public class GenerateIBatisMapper {
 
+    public enum ConfigurationType {
+        XMLMAPPER,
+        ANNOTATEDMAPPER
+    }
+
     private String module;
     private String database;
+    private ConfigurationType configurationType = ConfigurationType.XMLMAPPER;
+
+    private String entityPackage = "entity";
+    private String mapperPackage = "mapper";
+
     private JDBCConnectionConfiguration jdbcConnectionConfiguration;
+
+    private ThreadLocal<TableConfiguration> currentTable = new ThreadLocal<>();
 
     List<Class<? extends Plugin>> plugins = Lists.newArrayList(
             SerializablePlugin.class,
@@ -118,7 +135,7 @@ public class GenerateIBatisMapper {
                 jdbcConnectionConfiguration.setConnectionURL(jdbc.getA());
                 jdbcConnectionConfiguration.setUserId(jdbc.getB());
                 jdbcConnectionConfiguration.setPassword(jdbc.getC());
-            }else{
+            } else {
                 throw new RuntimeException("can't found the jdbc config");
             }
         }
@@ -131,7 +148,7 @@ public class GenerateIBatisMapper {
 
     public JavaModelGeneratorConfiguration getJavaModelGeneratorConfiguration() {
         JavaModelGeneratorConfiguration configuration = new JavaModelGeneratorConfiguration();
-        configuration.setTargetPackage(String.format("%s.entry", getModule()));
+        configuration.setTargetPackage(String.format("%s.%s", getModule(), getEntityPackage()));
         configuration.setTargetProject(getModulePath());
         configuration.addProperty("enableSubPackages", "true");
         configuration.addProperty("trimStrings", "true");
@@ -140,7 +157,7 @@ public class GenerateIBatisMapper {
 
     public SqlMapGeneratorConfiguration getSqlMapGeneratorConfiguration() {
         SqlMapGeneratorConfiguration configuration = new SqlMapGeneratorConfiguration();
-        configuration.setTargetPackage(String.format("%s.mapper", getModule()));
+        configuration.setTargetPackage(String.format("%s.%s", getModule(), getMapperPackage()));
         configuration.setTargetProject(getMapperXMLPath());
         configuration.addProperty("enableSubPackages", "true");
         return configuration;
@@ -148,9 +165,9 @@ public class GenerateIBatisMapper {
 
     public JavaClientGeneratorConfiguration getJavaClientGeneratorConfiguration() {
         JavaClientGeneratorConfiguration configuration = new JavaClientGeneratorConfiguration();
-        configuration.setTargetPackage(String.format("%s.mapper", getModule()));
+        configuration.setTargetPackage(String.format("%s.%s", getModule(), getMapperPackage()));
         configuration.setTargetProject(getMapperPath());
-        configuration.setConfigurationType("XMLMAPPER");
+        configuration.setConfigurationType(getConfigurationType().name());
         configuration.addProperty("enableSubPackages", "true");
         return configuration;
     }
@@ -166,32 +183,49 @@ public class GenerateIBatisMapper {
         generate(context -> {
             String javaName = CaseFormat.LOWER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL).convert(table);
             TableConfiguration tableConfiguration = new TableConfiguration(context);
+            currentTable.set(tableConfiguration);
             String database = getDatabase();
             if (database != null) {
                 tableConfiguration.setSchema(database);
             }
             tableConfiguration.setTableName(table);
             tableConfiguration.setDomainObjectName(javaName);
-            consumer.accept(tableConfiguration);
+            if (consumer != null) {
+                consumer.accept(tableConfiguration);
+            }
             context.addTableConfiguration(tableConfiguration);
         });
     }
 
     @SneakyThrows
-    public void GenerateTables(String... tables) {
-        generate(context -> {
-            for (String table : tables) {
-                String javaName = CaseFormat.LOWER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL).convert(table);
-                TableConfiguration tableConfiguration = new TableConfiguration(context);
-                String database = getDatabase();
-                if (database != null) {
-                    tableConfiguration.setSchema(database);
-                }
-                tableConfiguration.setTableName(table);
-                tableConfiguration.setDomainObjectName(javaName);
-                context.addTableConfiguration(tableConfiguration);
+    public void GenerateAllTables(Consumer<TableConfiguration> consumer) {
+        JDBCConnectionConfiguration cfg = getJdbcConnectionConfiguration();
+        DruidDataSource ds = new DruidDataSource();
+        ds.setUrl(cfg.getConnectionURL());
+        ds.setDriverClassName(cfg.getDriverClass());
+        ds.setUsername(cfg.getUserId());
+        ds.setPassword(cfg.getPassword());
+        QueryRunner queryRunner = new QueryRunner(ds);
+        queryRunner.query("show tables", new Object[]{}, rs -> {
+            while (rs.next()) {
+                GenerateTable(rs.getString(1), consumer);
             }
+            return null;
         });
+    }
+
+    @SneakyThrows
+    public void GenerateTables(String... tables) {
+        for (String table : tables) {
+            GenerateTable(table, t -> {
+            });
+        }
+    }
+
+    public void GenerateTables(Consumer<TableConfiguration> consumer, String... tables) {
+        for (String table : tables) {
+            GenerateTable(table, consumer);
+        }
     }
 
     public ColumnOverride columnOverwrite(String column, Class<?> javaType, Class<? extends TypeHandler> typeHandler) {
@@ -201,6 +235,33 @@ public class GenerateIBatisMapper {
         return columnOverride;
     }
 
+    public void overwriteColumn(String column, Class<?> javaType, Class<? extends TypeHandler> typeHandler) {
+        ColumnOverride columnOverride = this.columnOverwrite(column, javaType, typeHandler);
+        currentTable.get().addColumnOverride(columnOverride);
+    }
+
+    public void ignoreColumns(String... columns) {
+        for (String column : columns) {
+            IgnoredColumn ignoredColumn = new IgnoredColumn(column);
+            currentTable.get().addIgnoredColumn(ignoredColumn);
+        }
+    }
+
+    public void overwriteColumn(String column, Class<? extends Number> numberType) {
+        overwriteColumn(column, numberType, BaseTypeHandler.class);
+    }
+
+    public void overwriteColumnLongDate(String column) {
+        overwriteColumn(column, Date.class, LongDateTypeHandler.class);
+    }
+
+    public void overwriteColumnEnumName(String column, Class<? extends Enum> enumClass) {
+        overwriteColumn(column, enumClass, EnumTypeHandler.class);
+    }
+
+    public void overwriteColumnEnumOrdinal(String column, Class<? extends Enum> enumClass) {
+        overwriteColumn(column, enumClass, EnumOrdinalTypeHandler.class);
+    }
 
     /**
      * 设置Entry列的上父类
