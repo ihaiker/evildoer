@@ -291,6 +291,17 @@ public class GenerateIBatisMapper {
         return module;
     }
 
+    public void configContext(Context context) {
+
+    }
+
+    public CommentGeneratorConfiguration configComment() {
+        CommentGeneratorConfiguration commentGeneratorConfiguration = new CommentGeneratorConfiguration();
+        commentGeneratorConfiguration.setConfigurationType(SqlCommentGenerator.class.getName());
+        commentGeneratorConfiguration.addProperty("suppressAllComments", "true");
+        return commentGeneratorConfiguration;
+    }
+
     @SneakyThrows
     private void generate(Consumer<Context> consumer) {
         List<String> warnings = new ArrayList<>();
@@ -309,22 +320,18 @@ public class GenerateIBatisMapper {
 
         context.addProperty("javaFileEncoding", "UTF-8");
 
-        CommentGeneratorConfiguration comment = new CommentGeneratorConfiguration();
-        comment.addProperty("suppressAllComments", "true");
-        context.setCommentGeneratorConfiguration(comment);
-
         context.setJdbcConnectionConfiguration(getJdbcConnectionConfiguration());
         context.setJavaModelGeneratorConfiguration(getJavaModelGeneratorConfiguration());
         context.setSqlMapGeneratorConfiguration(getSqlMapGeneratorConfiguration());
         context.setJavaClientGeneratorConfiguration(getJavaClientGeneratorConfiguration());
         context.setJavaTypeResolverConfiguration(getJavaTypeResolverConfiguration());
 
-        CommentGeneratorConfiguration commentGeneratorConfiguration = new CommentGeneratorConfiguration();
-        commentGeneratorConfiguration.setConfigurationType(SqlCommentGenerator.class.getName());
-        commentGeneratorConfiguration.addProperty("suppressAllComments", "true");
-        context.setCommentGeneratorConfiguration(commentGeneratorConfiguration);
-
+        CommentGeneratorConfiguration commentConfig = configComment();
+        if(commentConfig != null){
+            context.setCommentGeneratorConfiguration(commentConfig);
+        }
         consumer.accept(context);
+        configContext(context);
 
         DefaultShellCallback callback = new DefaultShellCallback(true);
         new MyBatisGenerator(config, callback, warnings).generate(null);

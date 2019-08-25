@@ -77,14 +77,7 @@ public class SqlCommentGenerator implements CommentGenerator {
      * @param markAsDoNotDelete mark as do no tdelete
      */
     protected void addJavadocTag(JavaElement javaElement, boolean markAsDoNotDelete) {
-        javaElement.addJavaDocLine(" *");
-        StringBuilder sb = new StringBuilder();
-        sb.append(" * ");
-        sb.append(MergeConstants.NEW_ELEMENT_TAG);
-        if (markAsDoNotDelete) {
-            sb.append(" do_not_delete_during_merge");
-        }
-        javaElement.addJavaDocLine(sb.toString());
+
     }
     @Override
     public void addClassComment(InnerClass innerClass, IntrospectedTable introspectedTable) {
@@ -132,10 +125,8 @@ public class SqlCommentGenerator implements CommentGenerator {
 
     @Override
     public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {
-        method.addJavaDocLine("/**");
-        addJavadocTag(method, false);
-        method.addJavaDocLine(" */");
     }
+
     @Override
     public void addGetterComment(Method method, IntrospectedTable introspectedTable,
                                  IntrospectedColumn introspectedColumn) {
