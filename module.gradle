@@ -231,16 +231,16 @@ subprojects {
                             authentication(userName: RepositorySecurity("", "ossrhUsername"), password: RepositorySecurity("", "ossrhPassword"))
                         }
                     } else {
-                        snapshotRepository(url: "${nexusPrivatePath}/content/repositories/snapshots") {
+                        snapshotRepository(url: "${nexusPrivatePath}/repository/maven-snapshots/") {
                             authentication(
-                                    userName: RepositorySecurity(nexusPrivatePath, "ossrhUsername"),
-                                    password: RepositorySecurity(nexusPrivatePath, "ossrhPassword")
+                                    userName: "admin",
+                                    password: "xevwoq9hu5"
                             )
                         }
-                        repository(url: "${nexusPrivatePath}/content/repositories/releases") {
+                        repository(url: "${nexusPrivatePath}/repository/maven-releases/") {
                             authentication(
-                                    userName: RepositorySecurity(nexusPrivatePath, "ossrhUsername"),
-                                    password: RepositorySecurity(nexusPrivatePath, "ossrhPassword")
+                                    userName: "admin",
+                                    password: "xevwoq9hu5"
                             )
                         }
                     }

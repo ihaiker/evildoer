@@ -5,15 +5,13 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import la.renzhen.basis.Tuple;
+import la.renzhen.basis.jdbc.mybatis.headler.EnumValueTypeHandler;
 import la.renzhen.basis.jdbc.mybatis.headler.LongDateTypeHandler;
 import la.renzhen.basis.jdbc.mybatis.plugins.*;
 import lombok.Data;
 import lombok.SneakyThrows;
 import org.apache.commons.dbutils.QueryRunner;
-import org.apache.ibatis.type.BaseTypeHandler;
-import org.apache.ibatis.type.EnumOrdinalTypeHandler;
-import org.apache.ibatis.type.EnumTypeHandler;
-import org.apache.ibatis.type.TypeHandler;
+import org.apache.ibatis.type.*;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.config.*;
@@ -22,6 +20,8 @@ import org.mybatis.generator.plugins.SerializablePlugin;
 import org.mybatis.generator.plugins.ToStringPlugin;
 import org.yaml.snakeyaml.Yaml;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -248,11 +248,35 @@ public class GenerateIBatisMapper {
     }
 
     public void overwriteColumn(String column, Class<? extends Number> numberType) {
-        overwriteColumn(column, numberType, BaseTypeHandler.class);
+        if (numberType.isAssignableFrom(Integer.class)) {
+            overwriteColumn(column, numberType, IntegerTypeHandler.class);
+        } else if (numberType.isAssignableFrom(Long.class)) {
+            overwriteColumn(column, numberType, LongTypeHandler.class);
+        } else if (numberType.isAssignableFrom(Short.class)) {
+            overwriteColumn(column, numberType, ShortTypeHandler.class);
+        } else if (numberType.isAssignableFrom(Float.class)) {
+            overwriteColumn(column, numberType, FloatTypeHandler.class);
+        } else if (numberType.isAssignableFrom(Double.class)) {
+            overwriteColumn(column, numberType, DoubleTypeHandler.class);
+        } else if (numberType.isAssignableFrom(BigDecimal.class)) {
+            overwriteColumn(column, numberType, BigDecimalTypeHandler.class);
+        } else if (numberType.isAssignableFrom(BigInteger.class)) {
+            overwriteColumn(column, numberType, BigIntegerTypeHandler.class);
+        }
+        throw new IllegalArgumentException("not support := " + numberType);
     }
 
     public void overwriteColumnLongDate(String column) {
         overwriteColumn(column, Date.class, LongDateTypeHandler.class);
+    }
+
+    /**
+     * 设置hashCode枚举
+     * @param column 字段类型
+     * @param enumClass 字段枚举类型，此枚举必须重写hashCode()方法，使用hashCode值作为结果值
+     */
+    public void overwriteColumnEnum(String column, Class<? extends Enum> enumClass) {
+        overwriteColumn(column, enumClass, EnumValueTypeHandler.class);
     }
 
     public void overwriteColumnEnumName(String column, Class<? extends Enum> enumClass) {
@@ -327,7 +351,7 @@ public class GenerateIBatisMapper {
         context.setJavaTypeResolverConfiguration(getJavaTypeResolverConfiguration());
 
         CommentGeneratorConfiguration commentConfig = configComment();
-        if(commentConfig != null){
+        if (commentConfig != null) {
             context.setCommentGeneratorConfiguration(commentConfig);
         }
         consumer.accept(context);
